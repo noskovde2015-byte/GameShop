@@ -1,5 +1,6 @@
-from pydantic import BaseModel
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel, PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
 
 class RunConfig(BaseModel):
@@ -8,15 +9,32 @@ class RunConfig(BaseModel):
 
 
 class ApiPrefix(BaseModel):
-    prefix: str
+    prefix: str = "/api"
 
 
 class DataBaseConfig(BaseModel):
+    url: PostgresDsn
+    echo: bool = False
+    echo_pool: bool = False
+    pool_size: int = 50
+    max_overflow: int = 10
+
+
+class AuthConfig(BaseModel):
     pass
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).parent.parent / ".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        env_prefix="APP_CONFIG__",
+        env_nested_delimiter="__",
+    )
     run: RunConfig = RunConfig()
+    prefix: ApiPrefix = ApiPrefix()
+    db: DataBaseConfig
 
 
 settings = Settings()
