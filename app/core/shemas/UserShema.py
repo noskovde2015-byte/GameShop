@@ -20,7 +20,6 @@ class UserBase(BaseModel):
     email: EmailStr
 
 
-
 class UserCreate(UserBase):
     pass
 
