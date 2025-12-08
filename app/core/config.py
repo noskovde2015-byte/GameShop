@@ -22,7 +22,10 @@ class DataBaseConfig(BaseModel):
 
 
 class AuthConfig(BaseModel):
-    pass
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE: int
+    REFRESH_TOKEN_EXPIRE: int
 
 
 class Settings(BaseSettings):
@@ -36,6 +39,7 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     prefix: ApiPrefix = ApiPrefix()
     db: DataBaseConfig
+    auth: AuthConfig
 
 
 settings = Settings()
