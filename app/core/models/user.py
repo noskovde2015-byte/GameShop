@@ -22,6 +22,7 @@ class User(Base):
     nickname: Mapped[str] = mapped_column(unique=True, nullable=False)
     age: Mapped[int] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(nullable=False)
     role: Mapped[UserRole] = mapped_column(default=UserRole.BUYER)
 
     items: Mapped[list["Item"]] = relationship(back_populates="seller")

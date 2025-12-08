@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class Item(Base):
     __tablename__ = "items"
     name: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=True)
+    description: Mapped[str] = mapped_column(nullable=True, default="")
     price: Mapped[float] = mapped_column(nullable=False)
     category: Mapped[str] = mapped_column(nullable=False)
 
