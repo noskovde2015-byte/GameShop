@@ -13,6 +13,7 @@ class ApiPrefix(BaseModel):
     users: str = "/users"
     auth: str = "/auth"
     login: str = "/login"
+    items: str = "/items"
 
 
 class DataBaseConfig(BaseModel):
