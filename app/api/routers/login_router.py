@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, Response, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from core.models import db_helper
+from api.dependencies import get_current_user
+from core.models import db_helper, User
 from core.config import settings
 from core.shemas.UserShema import UserAuth
 from core.auth import authenticate_user, create_access_token
@@ -29,3 +30,9 @@ async def login(
     access_token = create_access_token({"sub": str(check.id)})
     response.set_cookie(key="user_access_token", value=access_token, httponly=True)
     return {"access_token": access_token}
+
+
+@router.get("/logout")
+async def logout(response: Response, current_user: User = Depends(get_current_user)):
+    response.delete_cookie(key="user_access_token")
+    return {"message": f"Пользователь {current_user.id} вышел из системы"}

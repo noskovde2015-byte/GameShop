@@ -1,4 +1,4 @@
-__all__ = ("Base", "Item", "User")
+__all__ = ("Base", "Item", "User", "db_helper")
 from .base import Base
 from .Items import Item
 from .user import User
