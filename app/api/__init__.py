@@ -3,8 +3,10 @@ from core.config import settings
 from api.routers.user_router import router as user_router
 from api.routers.register_router import router as register_router
 from api.routers.login_router import router as login_router
+from api.routers.items_router import router as items_router
 
 router = APIRouter(prefix=settings.prefix.api_prefix)
 router.include_router(user_router)
 router.include_router(register_router)
 router.include_router(login_router)
+router.include_router(items_router)
