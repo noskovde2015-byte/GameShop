@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
+from enum import Enum
 
 
 class ItemCreate(BaseModel):
@@ -16,6 +17,13 @@ class ItemUpdate(BaseModel):
     category: str | None = None
     system_requirements: str | None = None
     rating: float | None = Field(default=None, ge=0, le=5)
+
+
+class ItemSort(str, Enum):
+    name_asc = "name_asc"
+    name_desc = "name_desc"
+    price_asc = "price_asc"
+    price_desc = "price_desc"
 
 
 class ItemRead(BaseModel):

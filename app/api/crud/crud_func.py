@@ -5,7 +5,7 @@ from sqlalchemy import select, Result, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import User, Item
-from core.shemas.ItemShema import ItemCreate, ItemUpdate
+from core.shemas.ItemShema import ItemCreate, ItemUpdate, ItemSort
 from core.shemas.UserShema import UserCreate
 
 
@@ -80,22 +80,28 @@ async def get_items_paginated(
     session: AsyncSession,
     page: int,
     size: int,
+    sort: ItemSort | None = None,
 ):
-    if page < 1:
-        page = 1
-
-    if size < 1:
-        size = 10
-
-    # Пропуск элементов
     offset = (page - 1) * size
 
-    # Общее количество товаров
     total_stmt = select(func.count()).select_from(Item)
-    total_result: Result = await session.execute(total_stmt)
+    total_result = await session.execute(total_stmt)
     total = total_result.scalar_one()
 
-    stmt = select(Item).order_by(Item.id).offset(offset).limit(size)
+    stmt = select(Item)
+
+    if sort == ItemSort.name_asc:
+        stmt = stmt.order_by(Item.name.asc())
+    elif sort == ItemSort.name_desc:
+        stmt = stmt.order_by(Item.name.desc())
+    elif sort == ItemSort.price_asc:
+        stmt = stmt.order_by(Item.price.asc())
+    elif sort == ItemSort.price_desc:
+        stmt = stmt.order_by(Item.price.desc())
+    else:
+        stmt = stmt.order_by(Item.id)
+
+    stmt = stmt.offset(offset).limit(size)
 
     result: Result = await session.execute(stmt)
     items = result.scalars().all()

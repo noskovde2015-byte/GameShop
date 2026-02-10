@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from core.config import settings
 from core.models import db_helper, User
-from core.shemas.ItemShema import ItemCreate, ItemUpdate, ItemRead
+from core.shemas.ItemShema import ItemCreate, ItemUpdate, ItemRead, ItemSort
 from api.dependencies import get_current_user
 from api.dependencies import require_seller
 
@@ -49,11 +49,13 @@ async def search_item_by_name_endpoint(
 async def get_items_endpoint(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
+    sort: ItemSort | None = Query(None),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
     return await get_items_paginated(
         page=page,
         size=size,
+        sort=sort,
         session=session,
     )
 
