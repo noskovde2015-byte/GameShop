@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import HTTPException
-from sqlalchemy import select, Result
+from sqlalchemy import select, Result, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import User, Item
@@ -66,3 +66,10 @@ async def update_item(
 async def delete_item(session: AsyncSession, item: Item) -> None:
     await session.delete(item)
     await session.commit()
+
+
+async def search_by_name(session: AsyncSession, name: str) -> list[Item]:
+    stmt = select(Item).where(Item.name.like(f"%{name}%"))
+    result: Result = await session.execute(stmt)
+    items = result.scalars().all()
+    return list(items)

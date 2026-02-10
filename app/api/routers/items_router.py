@@ -13,6 +13,7 @@ from api.crud.crud_func import (
     get_item_by_id,
     update_item,
     delete_item,
+    search_by_name,
 )
 
 router = APIRouter(prefix=settings.prefix.items, tags=["Items"])
@@ -28,6 +29,17 @@ async def create_item_endpoint(
         item_data=item_data,
         session=session,
         seller=seller,
+    )
+
+
+@router.get("/search", response_model=list[ItemRead])
+async def search_item_by_name_endpoint(
+    name: str,
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    return await search_by_name(
+        name=name,
+        session=session,
     )
 
 
