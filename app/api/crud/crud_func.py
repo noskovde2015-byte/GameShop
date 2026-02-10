@@ -73,3 +73,41 @@ async def search_by_name(session: AsyncSession, name: str) -> list[Item]:
     result: Result = await session.execute(stmt)
     items = result.scalars().all()
     return list(items)
+
+
+# ---------------------------------------------ПАГИНАЦИЯ-----------------------------------------
+async def get_items_paginated(
+    session: AsyncSession,
+    page: int,
+    size: int,
+):
+    if page < 1:
+        page = 1
+
+    if size < 1:
+        size = 10
+
+    # Пропуск элементов
+    offset = (page - 1) * size
+
+    # Общее количество товаров
+    total_stmt = select(func.count()).select_from(Item)
+    total_result: Result = await session.execute(total_stmt)
+    total = total_result.scalar_one()
+
+    stmt = select(Item).order_by(Item.id).offset(offset).limit(size)
+
+    result: Result = await session.execute(stmt)
+    items = result.scalars().all()
+
+    pages = (total + size - 1) // size
+
+    return {
+        "meta": {
+            "page": page,
+            "size": size,
+            "total": total,
+            "pages": pages,
+        },
+        "items": items,
+    }

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from core.config import settings
@@ -14,7 +14,9 @@ from api.crud.crud_func import (
     update_item,
     delete_item,
     search_by_name,
+    get_items_paginated,
 )
+from core.shemas.PaginationShema import PaginatedItems
 
 router = APIRouter(prefix=settings.prefix.items, tags=["Items"])
 
@@ -43,9 +45,17 @@ async def search_item_by_name_endpoint(
     )
 
 
-@router.get("", response_model=list[ItemRead])
-async def get_items_endpoint(session: AsyncSession = Depends(db_helper.session_getter)):
-    return await get_items(session=session)
+@router.get("", response_model=PaginatedItems)
+async def get_items_endpoint(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    return await get_items_paginated(
+        page=page,
+        size=size,
+        session=session,
+    )
 
 
 @router.patch("/{item_id}", response_model=ItemRead)
