@@ -14,6 +14,7 @@ class ApiPrefix(BaseModel):
     auth: str = "/auth"
     login: str = "/login"
     items: str = "/items"
+    favorites: str = "/favorites"
 
 
 class DataBaseConfig(BaseModel):

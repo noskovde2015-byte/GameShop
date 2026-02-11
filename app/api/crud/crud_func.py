@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy import select, Result, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import User, Item
+from core.models import User, Item, Favorite
 from core.shemas.ItemShema import ItemCreate, ItemUpdate, ItemSort
 from core.shemas.UserShema import UserCreate
 
@@ -117,3 +117,36 @@ async def get_items_paginated(
         },
         "items": items,
     }
+
+
+# --------------------------------------------------ИЗБРАННОЕ------------------------------------------------
+async def add_to_favorites(session: AsyncSession, item: Item, user: User):
+    favorite = Favorite(user_id=user.id, item_id=item.id)
+    session.add(favorite)
+    await session.commit()
+
+
+async def remove_from_favorites(session: AsyncSession, item: Item, user: User):
+    stmt = select(Favorite).where(
+        Favorite.user_id == user.id, Favorite.item_id == item.id
+    )
+    result: Result = await session.execute(stmt)
+    favorites = result.scalar_one_or_none()
+
+    if favorites:
+        await session.delete(favorites)
+        await session.commit()
+
+
+async def get_user_favorites(
+    session: AsyncSession,
+    user: User,
+):
+    stmt = (
+        select(Item)
+        .join(Favorite, Favorite.item_id == Item.id)
+        .where(Favorite.user_id == user.id)
+    )
+    result: Result = await session.execute(stmt)
+    favorites = result.scalars().all()
+    return favorites
