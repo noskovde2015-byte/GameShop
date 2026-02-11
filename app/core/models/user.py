@@ -26,3 +26,6 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(default=UserRole.BUYER)
 
     items: Mapped[list["Item"]] = relationship(back_populates="seller")
+    favorites: Mapped[list["Item"]] = relationship(
+        secondary="favorites", back_populates="favorited_by"
+    )
