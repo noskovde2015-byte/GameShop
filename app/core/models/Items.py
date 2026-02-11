@@ -18,3 +18,6 @@ class Item(Base):
 
     seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     seller: Mapped["User"] = relationship(back_populates="items")
+    favorited_by: Mapped[list["User"]] = relationship(
+        secondary="favorites", back_populates="favorites"
+    )
