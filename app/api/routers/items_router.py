@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from core.config import settings
 from core.models import db_helper, User
@@ -58,6 +59,17 @@ async def get_items_endpoint(
         sort=sort,
         session=session,
     )
+
+
+@router.get("/{item_id}", response_model=ItemRead)
+async def get_item_by_id_endpoint(
+    item_id: int,
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    item = await get_item_by_id(session=session, item_id=item_id)
+    if not item:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Товар не найден")
+    return item
 
 
 @router.patch("/{item_id}", response_model=ItemRead)
