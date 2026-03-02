@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
+from core.models.user import UserRole
 
 
 class UserBase(BaseModel):
@@ -31,4 +32,5 @@ class UserCreate(UserBase):
 
 class UserRead(UserBase):
     model_config = ConfigDict(from_attributes=True)
+    role: UserRole
     id: int
