@@ -30,6 +30,11 @@ async def create_new_user(
     )
 
 
+@router.get("/me", response_model=UserRead)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
 # Смена роли с покупателя на продавца
 @router.post("/become-seller")
 async def become_seller(
