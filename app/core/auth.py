@@ -1,10 +1,10 @@
 from datetime import timedelta, datetime, timezone
-
+import secrets
 from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
-
+import hashlib
 from core.config import settings
 from core.models import User
 
@@ -26,6 +26,14 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(
         to_encode, settings.auth.SECRET_KEY, algorithm=settings.auth.ALGORITHM
     )
+
+
+def create_refresh_token() -> str:
+    return secrets.token_urlsafe(64)
+
+
+def hash_refresh_token(refresh_token: str) -> str:
+    return hashlib.sha256(refresh_token.encode()).hexdigest()
 
 
 async def authenticate_user(email: str, password: str, session: AsyncSession):
