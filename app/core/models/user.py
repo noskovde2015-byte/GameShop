@@ -24,6 +24,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     role: Mapped[UserRole] = mapped_column(default=UserRole.BUYER)
+    refresh_tokens = relationship("RefreshToken", back_populates="user")
 
     items: Mapped[list["Item"]] = relationship(back_populates="seller")
     favorites: Mapped[list["Item"]] = relationship(
