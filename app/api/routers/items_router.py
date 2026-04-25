@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
@@ -7,6 +7,9 @@ from core.models import db_helper, User
 from core.shemas.ItemShema import ItemCreate, ItemUpdate, ItemRead, ItemSort
 from api.dependencies import get_current_user
 from api.dependencies import require_seller
+import os
+import uuid
+
 
 from api.crud.crud_func import (
     create_item,
@@ -110,3 +113,34 @@ async def delete_item_endpoint(
 
     await delete_item(session=session, item=item)
     return {"message": "Предмет удален успешно"}
+
+
+@router.post("/{item_id}/upload-image")
+async def upload_image(
+    item_id: int,
+    file: UploadFile = File(...),
+    session: AsyncSession = Depends(db_helper.session_getter),
+    seller: User = Depends(require_seller),
+):
+    item = await get_item_by_id(item_id=item_id, session=session)
+
+    if not item:
+        raise HTTPException(HTTP_404_NOT_FOUND, "Товар не найден")
+
+    if item.seller_id != seller.id:
+        raise HTTPException(HTTP_403_FORBIDDEN, "Не ваш товар")
+
+    # создаём уникальное имя
+    ext = file.filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+
+    os.makedirs("media", exist_ok=True)
+    file_path = os.path.join("media", filename)
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+
+    item.image_url = f"/media/{filename}"
+    await session.commit()
+
+    return {"image_url": item.image_url}

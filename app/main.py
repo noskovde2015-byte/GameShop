@@ -3,6 +3,7 @@ import uvicorn
 from core.config import settings
 from api import router as api_router
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -17,6 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 
 if __name__ == "__main__":

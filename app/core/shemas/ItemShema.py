@@ -37,3 +37,4 @@ class ItemRead(BaseModel):
     system_requirements: str | None
     rating: float
     seller_id: int
+    image_url: str | None
