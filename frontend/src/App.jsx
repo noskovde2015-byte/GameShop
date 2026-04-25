@@ -26,6 +26,9 @@ export default function App() {
         <Route path="/manage-items" element={<ManageItems />} />
         <Route path="/edit-item/:id" element={<EditItem />} />
       </Routes>
+      <footer className="text-center py-6 text-gray-400 border-t border-gray-800 mt-10">
+    © 2026 GameShop | Курсовой проект
+      </footer>
     </div>
   );
 }
