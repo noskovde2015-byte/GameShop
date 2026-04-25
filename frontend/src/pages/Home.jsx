@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import ItemCard from "../components/ItemCard";
+import Loader from "../components/Loader";
 
 export default function Home() {
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
@@ -32,33 +34,46 @@ export default function Home() {
 
   const fetchItems = async () => {
   try {
+    setLoading(true);
+
     const res = await api.get(
       `/items?page=${page}&size=${size}${sort ? `&sort=${sort}` : ""}`
     );
 
     setItems(res.data.items);
 
-    const total = res.data.total;
-    const pages = Math.ceil(total / size);
+    const total = res.data.meta.total;
+    const pages = res.data.meta.pages;
 
     setTotalPages(pages);
+
   } catch (err) {
     console.log(err);
+
+  } finally {
+    setLoading(false);
   }
 };
 
   const searchItems = async () => {
-    try {
-      const res = await api.get(`/items/search?name=${search}`);
-      setItems(res.data);
-      setTotalPages(1);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  try {
+    setLoading(true);
+
+    const res = await api.get(`/items/search?name=${search}`);
+
+    setItems(res.data);
+    setTotalPages(1);
+
+  } catch (err) {
+    console.log(err);
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    <div className="px-10 py-10">
+    <div className="px-10 py-10 min-h-[80vh] flex flex-col">
 
       {/* Поиск + сортировка */}
       <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-10">
@@ -89,15 +104,15 @@ export default function Home() {
       </div>
 
       {/* Карточки */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {items.map(item => (
-          <ItemCard key={item.id} item={item} />
-        ))}
-      </div>
+      <div className="flex-1">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    {items.map(item => (
+      <ItemCard key={item.id} item={item} />
+    ))}
+  </div>
+</div>
 
-      {/* Пагинация только если нет поиска */}
-      {!search && (
-        <div className="flex justify-center items-center gap-6 mt-12">
+<div className="flex justify-center items-center gap-6 mt-12">
 
           <button
             disabled={page === 1}
@@ -133,7 +148,7 @@ export default function Home() {
           </select>
 
         </div>
-      )}
+
     </div>
   );
 }
