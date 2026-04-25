@@ -5,7 +5,7 @@ import ItemCard from "../components/ItemCard";
 export default function Home() {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(6);
+  const [size, setSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("");
@@ -127,9 +127,9 @@ export default function Home() {
             }}
             className="bg-black border border-gray-700 px-3 py-2 rounded-xl"
           >
-            <option value={3}>3</option>
-            <option value={6}>6</option>
-            <option value={9}>9</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={15}>15</option>
           </select>
 
         </div>
