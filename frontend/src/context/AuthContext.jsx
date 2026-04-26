@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Проверяем пользователя при старте приложения
+  // Проверяем пользователя при старте приложения
   useEffect(() => {
     const fetchUser = async () => {
       try {

@@ -19,7 +19,7 @@ export default function Home() {
     }
   }, [page, size, sort]);
 
-  // 🔎 живой поиск
+  // поиск
   useEffect(() => {
     const delay = setTimeout(() => {
       if (search) {
