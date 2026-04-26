@@ -13,13 +13,13 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // 1️⃣ Логинимся (ставится cookie)
+      // 1Логин
       await api.post("/login", { email, password });
 
-      // 2️⃣ Получаем данные пользователя
+      // Получаем данные пользователя
       const response = await api.get("/users/me");
 
-      // 3️⃣ Сохраняем ПОЛНЫЙ объект пользователя
+      // Сохраняем ПОЛНЫЙ объект пользователя
       setUser({
         id: response.data.id,
         nickname: response.data.nickname,
