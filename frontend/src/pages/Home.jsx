@@ -19,7 +19,7 @@ export default function Home() {
     }
   }, [page, size, sort]);
 
-  // поиск
+  // поиск с debounce
   useEffect(() => {
     const delay = setTimeout(() => {
       if (search) {
@@ -33,51 +33,47 @@ export default function Home() {
   }, [search]);
 
   const fetchItems = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await api.get(
-      `/items?page=${page}&size=${size}${sort ? `&sort=${sort}` : ""}`
-    );
+      const res = await api.get(
+        `/items?page=${page}&size=${size}${sort ? `&sort=${sort}` : ""}`
+      );
 
-    setItems(res.data.items);
+      // искусственная задержка Loader
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const total = res.data.meta.total;
-    const pages = res.data.meta.pages;
-
-    setTotalPages(pages);
-
-  } catch (err) {
-    console.log(err);
-
-  } finally {
-    setLoading(false);
-  }
-};
+      setItems(res.data.items);
+      setTotalPages(res.data.meta.pages);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const searchItems = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await api.get(`/items/search?name=${search}`);
+      const res = await api.get(`/items/search?name=${search}`);
 
-    setItems(res.data);
-    setTotalPages(1);
+      // такая же задержка
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  } catch (err) {
-    console.log(err);
-
-  } finally {
-    setLoading(false);
-  }
-};
+      setItems(res.data);
+      setTotalPages(1);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="px-10 py-10 min-h-[80vh] flex flex-col">
-
       {/* Поиск + сортировка */}
       <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-10">
-
         <input
           type="text"
           placeholder="Поиск товара..."
@@ -100,55 +96,56 @@ export default function Home() {
           <option value="price_asc">Цена ↑</option>
           <option value="price_desc">Цена ↓</option>
         </select>
-
       </div>
 
-      {/* Карточки */}
+      {/* 👇 ВАЖНО: отображение loader */}
       <div className="flex-1">
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-    {items.map(item => (
-      <ItemCard key={item.id} item={item} />
-    ))}
-  </div>
-</div>
+        {loading ? (
+          <Loader />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {items.map((item) => (
+              <ItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        )}
+      </div>
 
-<div className="flex justify-center items-center gap-6 mt-12">
+      {/* Пагинация */}
+      <div className="flex justify-center items-center gap-6 mt-12">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+          className="bg-gray-800 px-4 py-2 rounded-xl disabled:opacity-40"
+        >
+          Назад
+        </button>
 
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(prev => prev - 1)}
-            className="bg-gray-800 px-4 py-2 rounded-xl disabled:opacity-40"
-          >
-            Назад
-          </button>
+        <span>
+          Страница {page} из {totalPages}
+        </span>
 
-          <span>
-            Страница {page} из {totalPages}
-          </span>
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage((prev) => prev + 1)}
+          className="bg-gray-800 px-4 py-2 rounded-xl disabled:opacity-40"
+        >
+          Вперед
+        </button>
 
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(prev => prev + 1)}
-            className="bg-gray-800 px-4 py-2 rounded-xl disabled:opacity-40"
-          >
-            Вперед
-          </button>
-
-          <select
-            value={size}
-            onChange={(e) => {
-              setPage(1);
-              setSize(Number(e.target.value));
-            }}
-            className="bg-black border border-gray-700 px-3 py-2 rounded-xl"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-
-        </div>
-
+        <select
+          value={size}
+          onChange={(e) => {
+            setPage(1);
+            setSize(Number(e.target.value));
+          }}
+          className="bg-black border border-gray-700 px-3 py-2 rounded-xl"
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={15}>15</option>
+        </select>
+      </div>
     </div>
   );
 }
