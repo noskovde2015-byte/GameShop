@@ -1,0 +1,48 @@
+services:
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shop
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_CONFIG__DB__URL: postgresql+asyncpg://postgres:password@db:5432/shop
+      APP_CONFIG__AUTH__SECRET_KEY: your_super_secret_key_change_this_in_production
+      APP_CONFIG__AUTH__ALGORITHM: HS256
+      APP_CONFIG__AUTH__ACCESS_TOKEN_EXPIRE: 30
+      APP_CONFIG__AUTH__REFRESH_TOKEN_EXPIRE: 7
+    ports:
+      - "8000:8000"
+    volumes:
+      - media_data:/app/media
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  media_data:
